@@ -18,7 +18,7 @@ echo "Loaded modules:"
 module list
 
 # Navigate to the test directory
-cd $HOME/setup_solve/hypre/src/build/test
+cd $HOME/hypre_testing/src/build/test
 
 # Run the modified ij test with PCG (solver 1)
 # -pcg_setup_host_solve_device: CPU for setup, GPU for solve
