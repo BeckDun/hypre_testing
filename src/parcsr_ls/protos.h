@@ -405,6 +405,10 @@ HYPRE_Int HYPRE_BoomerAMGGetCoarsenCutFactor( HYPRE_Solver solver, HYPRE_Int *co
 HYPRE_Int HYPRE_BoomerAMGSetStrongThreshold ( HYPRE_Solver solver, HYPRE_Real strong_threshold );
 HYPRE_Int HYPRE_BoomerAMGGetStrongThreshold ( HYPRE_Solver solver, HYPRE_Real *strong_threshold );
 HYPRE_Int HYPRE_BoomerAMGSetStrongThresholdR ( HYPRE_Solver solver, HYPRE_Real strong_threshold );
+HYPRE_Int HYPRE_BoomerAMGGetAArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** A_array);
+HYPRE_Int HYPRE_BoomerAMGGetNumLevels(HYPRE_Solver solver, HYPRE_Int* num_levels);
+HYPRE_Int HYPRE_BoomerAMGGetPArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** P_array);
+HYPRE_Int HYPRE_BoomerAMGGetRArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** R_array);
 HYPRE_Int HYPRE_BoomerAMGGetStrongThresholdR ( HYPRE_Solver solver, HYPRE_Real *strong_threshold );
 HYPRE_Int HYPRE_BoomerAMGSetFilterThresholdR ( HYPRE_Solver solver, HYPRE_Real filter_threshold );
 HYPRE_Int HYPRE_BoomerAMGGetFilterThresholdR ( HYPRE_Solver solver, HYPRE_Real *filter_threshold );
