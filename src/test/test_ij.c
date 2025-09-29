@@ -2294,6 +2294,24 @@ main( HYPRE_Int   argc,
       hypre_FinalizeTiming(time_index);
       hypre_ClearTiming();
 
+      // Adding getters
+
+      // hypre_ParCSRMatrix** A_array;
+      // HYPRE_BoomerAMGGetAArray(pcg_precond, &A_array);
+
+      // hypre_ParCSRMatrix** P_array;  
+      // HYPRE_BoomerAMGGetPArray(pcg_precond, &P_array);
+
+      // hypre_ParCSRMatrix** R_array;
+      // HYPRE_BoomerAMGGetRArray(pcg_precond, &R_array);
+
+      // int num_levels;
+      // HYPRE_BoomerAMGGetNumLevels(pcg_precond, &num_levels);
+
+      // if (myid==0) printf("Num levels %d\n", num_levels);
+
+
+
       time_index = hypre_InitializeTiming("PCG Solve");
       hypre_BeginTiming(time_index);
 
