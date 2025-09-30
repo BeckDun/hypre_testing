@@ -2309,6 +2309,71 @@ main( HYPRE_Int   argc,
       // HYPRE_BoomerAMGGetNumLevels(pcg_precond, &num_levels);
 
       // if (myid==0) printf("Num levels %d\n", num_levels);
+     
+     
+      /*
+      if (myid == 0) {
+         printf("\n=== AMG Hierarchy Information ===\n");
+         printf("Number of AMG levels: %d\n", num_levels);
+         
+         // Print size information for each level
+         for (int level = 0; level < num_levels; level++) {
+            hypre_CSRMatrix* A_diag = hypre_ParCSRMatrixDiag(A_array[level]);
+            int n_rows = hypre_CSRMatrixNumRows(A_diag);
+            int nnz = hypre_CSRMatrixNumNonzeros(A_diag);
+            printf("Level %d: %d rows, %d nonzeros\n", level, n_rows, nnz);
+         }
+         printf("=================================\n\n");
+      }
+    */
+
+
+
+    // GPU MOVEMENT 
+   //  int levels_to_gpu = 1;  
+      
+   //    // Move specified number of levels to GPU
+   //    for (int level = 0; level < levels_to_gpu && level < num_levels; level++) {
+         
+   //       hypre_ParCSRMatrixMigrate(A_array[level], HYPRE_MEMORY_DEVICE);
+         
+   //       if (level < num_levels - 1 && P_array && P_array[level]) {
+   //             hypre_ParCSRMatrixMigrate(P_array[level], HYPRE_MEMORY_DEVICE);
+   //       }
+         
+   //       if (level < num_levels - 1 && R_array && R_array[level]) {
+   //             hypre_ParCSRMatrixMigrate(R_array[level], HYPRE_MEMORY_DEVICE);
+   //       }
+   //    }
+      
+   //    hypre_SyncDevice();
+
+
+      // LOOP FOR LEVEL CHECKING
+      for (int i = 0; i < num_levels; i++) {
+         // make test vectors for level 
+         // Create parallel test vectors matching the matrix dimensions
+         // move data to cpu 
+
+         // warm up? 
+         // time. With MPI? or does hypre have a better timer
+         // max time accross all procs
+
+         // move to gpu 
+         // p and r if they exist
+         // clean up vecotrs
+
+         // warm up
+         // time gpu 
+         // max time accross procs
+
+         // if cpu time < gpu time 
+            // move back to cpu for that level
+            // break
+         
+      }
+
+      // after this there should be the optimal number of level on each piece of hardware for the solve phase. 
 
 
 
