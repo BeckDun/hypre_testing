@@ -6,16 +6,19 @@
 #SBATCH --time=00:05:00
 #SBATCH --job-name=hypre_ij_array
 #SBATCH --account=bdys-dtai-gh
-#SBATCH --gpus-per-node=0
+#SBATCH --gpus-per-node=1
+#SBATCH --output=cpu_64_openmp_%j.out
 
 module load craype-accel-nvidia90
 module unload gcc-native
 module load gcc-native/12
 export MPICH_GPU_SUPPORT_ENABLED=1
-
 module list
+export HYPRE_EXEC_POLICY=HOST
+#export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+cd $HOME/hypre_testing/src/build/test
 
 
-cd $HOME/hypre_testing/hypre/src/build/test
 
-srun -n 256 ./ij  -solver 1 -125pt -n 256 256 256 -P 8 8 4  
+srun -n 256 ./ij  -solver 1 -125pt -n 64 64 64 -P 8 8 4 -memory_host -exec_host -exec2_host 
