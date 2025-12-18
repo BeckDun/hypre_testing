@@ -5829,61 +5829,114 @@ main( hypre_int argc,
       hypre_BeginTiming(time_index);
 
    
-      // BECKDUN - Migrate AMG hierarchy to GPU
-      HYPRE_ParCSRMatrix** A_array;  // Changed from hypre_ParCSRMatrix**
+      // // BECKDUN - Migrate AMG hierarchy to GPU
+      // HYPRE_ParCSRMatrix** A_array;  // Changed from hypre_ParCSRMatrix**
+      // HYPRE_Int num_levels;
+      // HYPRE_BoomerAMGGetAArray(amg_precond, &A_array);
+      // HYPRE_BoomerAMGGetNumLevels(amg_precond, &num_levels);
+
+      // // Migrate all matrices in the hierarchy to GPU
+      // for (HYPRE_Int level = 0; level < num_lsevels; level++)
+      // {
+      //    if (A_array[level])
+      //    {
+      //       hypre_ParCSRMatrixMigrate((hypre_ParCSRMatrix*)A_array[level], HYPRE_MEMORY_DEVICE);
+      //    }
+      // }
+
+      // // Also need to get and migrate P and R arrays
+      // HYPRE_ParCSRMatrix** P_array;  // Changed from hypre_ParCSRMatrix**
+      // HYPRE_ParCSRMatrix** R_array;  // Changed from hypre_ParCSRMatrix**
+      // HYPRE_BoomerAMGGetPArray(amg_precond, &P_array);
+      // HYPRE_BoomerAMGGetRArray(amg_precond, &R_array);
+
+      // for (HYPRE_Int level = 0; level < num_levels - 1; level++)
+      // {
+      //    if (P_array[level])
+      //    {
+      //       hypre_ParCSRMatrixMigrate((hypre_ParCSRMatrix*)P_array[level], HYPRE_MEMORY_DEVICE);
+      //    }
+      //    if (R_array[level])
+      //    {
+      //       hypre_ParCSRMatrixMigrate((hypre_ParCSRMatrix*)R_array[level], HYPRE_MEMORY_DEVICE);
+      //    }
+      // }
+
+      // // Migrate vectors (U_array, F_array)
+      // HYPRE_ParVector** U_array;  // Changed from hypre_ParVector**
+      // HYPRE_ParVector** F_array;  // Changed from hypre_ParVector**
+      // HYPRE_BoomerAMGGetUArray(amg_precond, &U_array);
+      // HYPRE_BoomerAMGGetFArray(amg_precond, &F_array);
+
+      // for (HYPRE_Int level = 0; level < num_levels; level++)
+      // {
+      //    if (U_array[level])
+      //    {
+      //       hypre_ParVectorMigrate((hypre_ParVector*)U_array[level], HYPRE_MEMORY_DEVICE);
+      //    }
+      //    if (F_array[level])
+      //    {
+      //       hypre_ParVectorMigrate((hypre_ParVector*)F_array[level], HYPRE_MEMORY_DEVICE);
+      //    }
+      // }
+
+      // try only migrating the setup vectors 
+      // After HYPRE_PCGSetup(...), before solve
+
+      HYPRE_ParCSRMatrix** A_array;  // Change from hypre_ParCSRMatrix**
+      HYPRE_ParCSRMatrix** P_array;  // Change from hypre_ParCSRMatrix**
+      HYPRE_ParCSRMatrix** R_array;  // Change from hypre_ParCSRMatrix**
       HYPRE_Int num_levels;
+
       HYPRE_BoomerAMGGetAArray(amg_precond, &A_array);
       HYPRE_BoomerAMGGetNumLevels(amg_precond, &num_levels);
+      HYPRE_BoomerAMGGetPArray(amg_precond, &P_array);
+      HYPRE_BoomerAMGGetRArray(amg_precond, &R_array);
 
-      // Migrate all matrices in the hierarchy to GPU
-      for (HYPRE_Int level = 0; level < num_lsevels; level++)
+      // 1. Migrate A matrices - definitely allocated on all levels
+
+      hypre_printf("*** DEBUG: Get all arrays ***\n");
+      for (HYPRE_Int level = 0; level < num_levels; level++)
       {
-         if (A_array[level])
+         if (A_array && A_array[level])
          {
             hypre_ParCSRMatrixMigrate((hypre_ParCSRMatrix*)A_array[level], HYPRE_MEMORY_DEVICE);
          }
       }
 
-      // Also need to get and migrate P and R arrays
-      HYPRE_ParCSRMatrix** P_array;  // Changed from hypre_ParCSRMatrix**
-      HYPRE_ParCSRMatrix** R_array;  // Changed from hypre_ParCSRMatrix**
-      HYPRE_BoomerAMGGetPArray(amg_precond, &P_array);
-      HYPRE_BoomerAMGGetRArray(amg_precond, &R_array);
-
+      
+hypre_printf("*** DEBUG:migrate A  ***\n");
+      // 2. Migrate P arrays - allocated on levels 0 to num_levels-2
       for (HYPRE_Int level = 0; level < num_levels - 1; level++)
       {
-         if (P_array[level])
+         if (P_array && P_array[level])
          {
             hypre_ParCSRMatrixMigrate((hypre_ParCSRMatrix*)P_array[level], HYPRE_MEMORY_DEVICE);
          }
-         if (R_array[level])
+      }
+hypre_printf("*** DEBUG:migrate P  ***\n");
+
+      // 3. Migrate R arrays - allocated on levels 0 to num_levels-2
+      for (HYPRE_Int level = 0; level < num_levels - 1; level++)
+      {
+         if (R_array && R_array[level])
          {
             hypre_ParCSRMatrixMigrate((hypre_ParCSRMatrix*)R_array[level], HYPRE_MEMORY_DEVICE);
          }
       }
 
-      // Migrate vectors (U_array, F_array)
-      HYPRE_ParVector** U_array;  // Changed from hypre_ParVector**
-      HYPRE_ParVector** F_array;  // Changed from hypre_ParVector**
-      HYPRE_BoomerAMGGetUArray(amg_precond, &U_array);
-      HYPRE_BoomerAMGGetFArray(amg_precond, &F_array);
+      hypre_printf("*** DEBUG:migrate R  ***\n");
 
-      for (HYPRE_Int level = 0; level < num_levels; level++)
-      {
-         if (U_array[level])
-         {
-            hypre_ParVectorMigrate((hypre_ParVector*)U_array[level], HYPRE_MEMORY_DEVICE);
-         }
-         if (F_array[level])
-         {
-            hypre_ParVectorMigrate((hypre_ParVector*)F_array[level], HYPRE_MEMORY_DEVICE);
-         }
-      }
 
-      if(solve_exec_policy == HYPRE_EXEC_DEVICE) {
+
+      hypre_ParCSRMatrixMigrate((hypre_ParCSRMatrix*)parcsr_A, HYPRE_MEMORY_DEVICE);
+      hypre_ParVectorMigrate((hypre_ParVector*)b, HYPRE_MEMORY_DEVICE);
+      hypre_ParVectorMigrate((hypre_ParVector*)x, HYPRE_MEMORY_DEVICE);
+
+      // if(solve_exec_policy == HYPRE_EXEC_DEVICE) {
          HYPRE_SetExecutionPolicy(solve_exec_policy);
          HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE);
-      }
+      //}
       hypre_GpuProfilingPushRange("PCG-Solve-1");
       HYPRE_PCGSolve(pcg_solver, (HYPRE_Matrix)parcsr_A,
                      (HYPRE_Vector)b, (HYPRE_Vector)x);
