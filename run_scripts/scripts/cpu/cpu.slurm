@@ -21,4 +21,4 @@ cd $HOME/hypre_testing/src/build/test
 
 
 
-srun -n 4 -G 4 ./ij  -solver 1 -125pt -n 256 256 256 -P 2 2 1 -hybrid
+srun -n 4 -G 4 ./ij  -solver 1 -125pt -n 128 128 128 -P 2 2 1 -hybrid
