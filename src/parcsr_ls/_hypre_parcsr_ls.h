@@ -1860,12 +1860,12 @@ HYPRE_Int HYPRE_BoomerAMGGetCoarsenCutFactor( HYPRE_Solver solver, HYPRE_Int *co
 HYPRE_Int HYPRE_BoomerAMGSetStrongThreshold ( HYPRE_Solver solver, HYPRE_Real strong_threshold );
 HYPRE_Int HYPRE_BoomerAMGGetStrongThreshold ( HYPRE_Solver solver, HYPRE_Real *strong_threshold );
 HYPRE_Int HYPRE_BoomerAMGSetStrongThresholdR ( HYPRE_Solver solver, HYPRE_Real strong_threshold );
-
-HYPRE_Int HYPRE_BoomerAMGGetAArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** A_array);
-HYPRE_Int HYPRE_BoomerAMGGetNumLevels(HYPRE_Solver solver, HYPRE_Int* num_levels);
-
-HYPRE_Int HYPRE_BoomerAMGGetPArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** P_array);
-HYPRE_Int HYPRE_BoomerAMGGetRArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** R_array);
+HYPRE_Int hypre_BoomerAMGGetAArray(void* data, hypre_ParCSRMatrix*** A_array);
+HYPRE_Int hypre_BoomerAMGGetNumLevels(void* data, HYPRE_Int* num_levels);
+HYPRE_Int hypre_BoomerAMGGetPArray(void* data, hypre_ParCSRMatrix*** P_array);
+HYPRE_Int hypre_BoomerAMGGetRArray(void* data, hypre_ParCSRMatrix*** R_array);
+HYPRE_Int hypre_BoomerAMGGetUArray(void* data, hypre_ParVector*** U_array);
+HYPRE_Int hypre_BoomerAMGGetFArray(void* data, hypre_ParVector*** F_array);
 
 HYPRE_Int HYPRE_BoomerAMGGetStrongThresholdR ( HYPRE_Solver solver, HYPRE_Real *strong_threshold );
 HYPRE_Int HYPRE_BoomerAMGSetFilterThresholdR ( HYPRE_Solver solver, HYPRE_Real filter_threshold );

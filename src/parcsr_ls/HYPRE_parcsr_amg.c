@@ -279,9 +279,9 @@ HYPRE_BoomerAMGSetStrongThreshold( HYPRE_Solver solver,
 
 
 HYPRE_Int
-HYPRE_BoomerAMGGetAArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** A_array)
+HYPRE_BoomerAMGGetAArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** A_array)
 {
-   return (hypre_BoomerAMGGetAArray((void*)solver, A_array));
+   return (hypre_BoomerAMGGetAArray((void*)solver, (hypre_ParCSRMatrix***)A_array));
 }
 
 HYPRE_Int
@@ -291,15 +291,27 @@ HYPRE_BoomerAMGGetNumLevels(HYPRE_Solver solver, HYPRE_Int* num_levels)
 }
 
 HYPRE_Int
-HYPRE_BoomerAMGGetPArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** P_array)
+HYPRE_BoomerAMGGetPArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** P_array)
 {
-   return (hypre_BoomerAMGGetPArray((void*)solver, P_array));
+   return (hypre_BoomerAMGGetPArray((void*)solver, (hypre_ParCSRMatrix***)P_array));
 }
 
 HYPRE_Int
-HYPRE_BoomerAMGGetRArray(HYPRE_Solver solver, hypre_ParCSRMatrix*** R_array)
+HYPRE_BoomerAMGGetRArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** R_array)
 {
-   return (hypre_BoomerAMGGetRArray((void*)solver, R_array));
+   return (hypre_BoomerAMGGetRArray((void*)solver, (hypre_ParCSRMatrix***)R_array));
+}
+
+HYPRE_Int
+HYPRE_BoomerAMGGetUArray(HYPRE_Solver solver, HYPRE_ParVector*** U_array)
+{
+   return (hypre_BoomerAMGGetUArray((void*)solver, (hypre_ParVector***)U_array));
+}
+
+HYPRE_Int
+HYPRE_BoomerAMGGetFArray(HYPRE_Solver solver, HYPRE_ParVector*** F_array)
+{
+   return (hypre_BoomerAMGGetFArray((void*)solver, (hypre_ParVector***)F_array));
 }
 
 

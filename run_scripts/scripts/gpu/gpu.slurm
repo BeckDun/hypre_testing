@@ -7,7 +7,7 @@
 #SBATCH --job-name=dscg_gpu
 #SBATCH --account=bdys-dtai-gh
 #SBATCH --gpus-per-node=4
-
+#SBATCH --output=gpu-testing.out
 module load craype-accel-nvidia90
 module unload gcc-native
 module load gcc-native/12

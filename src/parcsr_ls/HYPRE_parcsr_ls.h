@@ -68,6 +68,18 @@ typedef HYPRE_Int (*HYPRE_PtrToModifyPCFcn)(HYPRE_Solver,
  * @{
  **/
 
+
+/**
+ * 
+ */
+
+HYPRE_Int HYPRE_BoomerAMGGetAArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** P_array);
+HYPRE_Int HYPRE_BoomerAMGGetNumLevels(HYPRE_Solver solver, HYPRE_Int* num_levels);
+
+HYPRE_Int HYPRE_BoomerAMGGetPArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** P_array);
+HYPRE_Int HYPRE_BoomerAMGGetRArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** R_array);
+HYPRE_Int HYPRE_BoomerAMGGetUArray(HYPRE_Solver solver, HYPRE_ParVector*** U_array);
+HYPRE_Int HYPRE_BoomerAMGGetFArray(HYPRE_Solver solver, HYPRE_ParVector*** F_array);
 /**
  * Create a solver object.
  **/
