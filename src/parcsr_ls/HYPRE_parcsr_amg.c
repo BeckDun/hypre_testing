@@ -291,18 +291,6 @@ HYPRE_BoomerAMGGetNumLevels(HYPRE_Solver solver, HYPRE_Int* num_levels)
 }
 
 HYPRE_Int
-HYPRE_BoomerAMGGetPArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** P_array)
-{
-   return (hypre_BoomerAMGGetPArray((void*)solver, (hypre_ParCSRMatrix***)P_array));
-}
-
-HYPRE_Int
-HYPRE_BoomerAMGGetRArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix*** R_array)
-{
-   return (hypre_BoomerAMGGetRArray((void*)solver, (hypre_ParCSRMatrix***)R_array));
-}
-
-HYPRE_Int
 HYPRE_BoomerAMGGetUArray(HYPRE_Solver solver, HYPRE_ParVector*** U_array)
 {
    return (hypre_BoomerAMGGetUArray((void*)solver, (hypre_ParVector***)U_array));
@@ -312,6 +300,30 @@ HYPRE_Int
 HYPRE_BoomerAMGGetFArray(HYPRE_Solver solver, HYPRE_ParVector*** F_array)
 {
    return (hypre_BoomerAMGGetFArray((void*)solver, (hypre_ParVector***)F_array));
+}
+
+HYPRE_Int
+HYPRE_BoomerAMGGetVtemp(HYPRE_Solver solver, HYPRE_ParVector** Vtemp)
+{
+   return (hypre_BoomerAMGGetVtemp((void*)solver, (hypre_ParVector**)Vtemp));
+}
+
+HYPRE_Int
+HYPRE_BoomerAMGGetRtemp(HYPRE_Solver solver, HYPRE_ParVector** Rtemp)
+{
+   return (hypre_BoomerAMGGetRtemp((void*)solver, (hypre_ParVector**)Rtemp));
+}
+
+HYPRE_Int
+HYPRE_BoomerAMGGetPtemp(HYPRE_Solver solver, HYPRE_ParVector** Ptemp)
+{
+   return (hypre_BoomerAMGGetPtemp((void*)solver, (hypre_ParVector**)Ptemp));
+}
+
+HYPRE_Int
+HYPRE_BoomerAMGGetZtemp(HYPRE_Solver solver, HYPRE_ParVector** Ztemp)
+{
+   return (hypre_BoomerAMGGetZtemp((void*)solver, (hypre_ParVector**)Ztemp));
 }
 
 

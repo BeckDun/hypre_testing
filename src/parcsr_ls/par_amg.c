@@ -1351,31 +1351,6 @@ hypre_BoomerAMGGetAArray(void* data, hypre_ParCSRMatrix*** A_array)
    return hypre_error_flag;
 }
 
-HYPRE_Int
-hypre_BoomerAMGGetUArray(void* data, hypre_ParVector*** U_array)
-{
-    hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
-    if (!amg_data)
-    {
-        hypre_error_in_arg(1);
-        return hypre_error_flag;
-    }
-    *U_array = hypre_ParAMGDataUArray(amg_data);
-    return hypre_error_flag;
-}
-
-HYPRE_Int
-hypre_BoomerAMGGetFArray(void* data, hypre_ParVector*** F_array)
-{
-    hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
-    if (!amg_data)
-    {
-        hypre_error_in_arg(1);
-        return hypre_error_flag;
-    }
-    *F_array = hypre_ParAMGDataFArray(amg_data);
-    return hypre_error_flag;
-}
 
 hypre_BoomerAMGGetNumLevels(void* data, HYPRE_Int* num_levels)
 {
@@ -1391,7 +1366,7 @@ hypre_BoomerAMGGetNumLevels(void* data, HYPRE_Int* num_levels)
 }
 
 HYPRE_Int
-hypre_BoomerAMGGetPArray(void* data, hypre_ParCSRMatrix*** P_array)
+hypre_BoomerAMGGetUArray(void* data, hypre_ParVector*** U_array)
 {
    hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
    if (!amg_data)
@@ -1399,13 +1374,12 @@ hypre_BoomerAMGGetPArray(void* data, hypre_ParCSRMatrix*** P_array)
       hypre_error_in_arg(1);
       return hypre_error_flag;
    }
-
-   *P_array = hypre_ParAMGDataPArray(amg_data);
+   *U_array = hypre_ParAMGDataUArray(amg_data);
    return hypre_error_flag;
 }
 
 HYPRE_Int
-hypre_BoomerAMGGetRArray(void* data, hypre_ParCSRMatrix*** R_array)
+hypre_BoomerAMGGetFArray(void* data, hypre_ParVector*** F_array)
 {
    hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
    if (!amg_data)
@@ -1413,8 +1387,59 @@ hypre_BoomerAMGGetRArray(void* data, hypre_ParCSRMatrix*** R_array)
       hypre_error_in_arg(1);
       return hypre_error_flag;
    }
+   *F_array = hypre_ParAMGDataFArray(amg_data);
+   return hypre_error_flag;
+}
 
-   *R_array = hypre_ParAMGDataRArray(amg_data);
+HYPRE_Int
+hypre_BoomerAMGGetVtemp(void* data, hypre_ParVector** Vtemp)
+{
+   hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
+   if (!amg_data)
+   {
+      hypre_error_in_arg(1);
+      return hypre_error_flag;
+   }
+   *Vtemp = hypre_ParAMGDataVtemp(amg_data);
+   return hypre_error_flag;
+}
+
+HYPRE_Int
+hypre_BoomerAMGGetRtemp(void* data, hypre_ParVector** Rtemp)
+{
+   hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
+   if (!amg_data)
+   {
+      hypre_error_in_arg(1);
+      return hypre_error_flag;
+   }
+   *Rtemp = hypre_ParAMGDataRtemp(amg_data);
+   return hypre_error_flag;
+}
+
+HYPRE_Int
+hypre_BoomerAMGGetPtemp(void* data, hypre_ParVector** Ptemp)
+{
+   hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
+   if (!amg_data)
+   {
+      hypre_error_in_arg(1);
+      return hypre_error_flag;
+   }
+   *Ptemp = hypre_ParAMGDataPtemp(amg_data);
+   return hypre_error_flag;
+}
+
+HYPRE_Int
+hypre_BoomerAMGGetZtemp(void* data, hypre_ParVector** Ztemp)
+{
+   hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
+   if (!amg_data)
+   {
+      hypre_error_in_arg(1);
+      return hypre_error_flag;
+   }
+   *Ztemp = hypre_ParAMGDataZtemp(amg_data);
    return hypre_error_flag;
 }
 
