@@ -5871,27 +5871,21 @@ HYPRE_BoomerAMGGetZtemp(amg_precond, &Ztemp);
 if (Vtemp)
 {
    hypre_ParVectorMigrate((hypre_ParVector*)Vtemp, HYPRE_MEMORY_DEVICE);
-   printf("Migrated Vtemp\n");
 }
 if (Rtemp)
 {
    hypre_ParVectorMigrate((hypre_ParVector*)Rtemp, HYPRE_MEMORY_DEVICE);
-   printf("Migrated Rtemp\n");
 }
 if (Ptemp)
 {
    hypre_ParVectorMigrate((hypre_ParVector*)Ptemp, HYPRE_MEMORY_DEVICE);
-   printf("Migrated Ptemp\n");
 }
 if (Ztemp)
 {
    hypre_ParVectorMigrate((hypre_ParVector*)Ztemp, HYPRE_MEMORY_DEVICE);
-   printf("Migrated Ztemp\n");
 }
 
-printf("*** Vector migration complete ***\n");
 
-// Set execution policy to GPU
 HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE);
 HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE);
 
