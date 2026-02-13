@@ -108,12 +108,12 @@ typedef struct
    hypre_ParVector    **U_array;
    hypre_ParCSRMatrix **P_array;
    hypre_ParCSRMatrix **R_array;
-   hypre_IntArray     **CF_marker_array;
-   hypre_IntArray     **dof_func_array;
-   HYPRE_Int          **dof_point_array;
+   hypre_IntArray     **CF_marker_array; // leave
+   hypre_IntArray     **dof_func_array; // leave
+   HYPRE_Int          **dof_point_array; // migrate 
    HYPRE_Int          **point_dof_map_array;
    HYPRE_Int            num_levels;
-   hypre_Vector       **l1_norms;
+   hypre_Vector       **l1_norms; // migrate 
 
    /* Block data */
    hypre_ParCSRBlockMatrix **A_block_array;
@@ -188,6 +188,7 @@ typedef struct
    HYPRE_Real         *nongal_tol_array;
 
    /* data generated in the solve phase */
+   // migrate 
    hypre_ParVector   *Vtemp;
    hypre_Vector      *Vtemp_local;
    HYPRE_Real        *Vtemp_local_data;

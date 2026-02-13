@@ -119,6 +119,26 @@ main( hypre_int argc,
 {
    MPI_Comm            comm = hypre_MPI_COMM_WORLD;
 
+
+
+//    HYPRE_MemoryLocation memory_location_init = HYPRE_MEMORY_HOST; // default to host
+//    HYPRE_ExecutionPolicy exec_policy = HYPRE_EXEC_HOST; // default to host
+
+// for (int arg_index = 1; arg_index < argc; arg_index++)
+// {
+//    if (strcmp(argv[arg_index], "-memory_host") == 0)
+//    {
+//       memory_location_init = HYPRE_MEMORY_HOST;
+//       exec_policy = HYPRE_EXEC_HOST; // Add this
+//    }
+//    else if (strcmp(argv[arg_index], "-memory_device") == 0)
+//    {
+//       memory_location_init = HYPRE_MEMORY_DEVICE;
+//       exec_policy = HYPRE_EXEC_DEVICE;
+//    }
+// }
+
+
    HYPRE_Int           arg_index;
    HYPRE_Int           print_usage;
    HYPRE_Int           log_level = 0;
@@ -558,6 +578,8 @@ main( hypre_int argc,
     * Must be done before HYPRE_Initialize() and should not be changed after
     *-----------------------------------------------------------------*/
    hypre_bind_device_id(device_id, myid, num_procs, comm);
+   // if(memory_location_init == HYPRE_MEMORY_DEVICE) {
+   // }
 
    /*-----------------------------------------------------------
     * Initialize : must be the first HYPRE function to call
@@ -614,10 +636,12 @@ main( hypre_int argc,
    HYPRE_Initialize();
 
    if (!lazy_device_init)
-   {
-      HYPRE_DeviceInitialize();
-   }
-
+  {
+     HYPRE_DeviceInitialize();
+  }
+   // if(memory_location_init == HYPRE_MEMORY_DEVICE){
+   // }
+   
    hypre_EndTiming(time_index);
    hypre_PrintTiming("Hypre init times", comm);
    hypre_FinalizeTiming(time_index);
@@ -663,7 +687,7 @@ main( hypre_int argc,
       {
          exec2_policy = HYPRE_EXEC_DEVICE;
       }
-      else if ( strcmp(argv[arg_index], "-setup_host_solve_device") == 0 )
+      else if ( strcmp(argv[arg_index], "-hybrid") == 0 )
       {
 	 memory_location = HYPRE_MEMORY_HOST;
          setup_exec_policy = HYPRE_EXEC_HOST;
@@ -2882,9 +2906,10 @@ main( hypre_int argc,
    HYPRE_SetMemoryLocation(memory_location);
 
    /* default execution policy */
-   // HYPRE_SetExecutionPolicy(default_exec_policy);
+   //HYPRE_SetExecutionPolicy(default_exec_policy);
+   HYPRE_SetExecutionPolicy(setup_exec_policy);
 
-#if defined(HYPRE_USING_GPU)
+  if (hypre_GetExecPolicy1(memory_location) == HYPRE_EXEC_DEVICE){
    ierr = HYPRE_SetSpMVUseVendor(spmv_use_vendor); hypre_assert(ierr == 0);
    /* use vendor implementation for SpGEMM */
    ierr = HYPRE_SetSpGemmUseVendor(spgemm_use_vendor); hypre_assert(ierr == 0);
@@ -2895,7 +2920,7 @@ main( hypre_int argc,
    if (spgemm_rowest_mult > 0.0) { ierr = hypre_SetSpGemmRownnzEstimateMultFactor(spgemm_rowest_mult); hypre_assert(ierr == 0); }
    /* use cuRand for PMIS */
    HYPRE_SetUseGpuRand(use_curand);
-#endif
+   }
 
    HYPRE_SetGpuAwareMPI(gpu_aware_mpi);
 
@@ -2952,17 +2977,17 @@ main( hypre_int argc,
    {
       BuildParLaplacian27pt(comm, argc, argv, build_matrix_arg_index, &parcsr_A);
 
-#if defined(HYPRE_USING_GPU)
+   if (hypre_GetExecPolicy1(memory_location) == HYPRE_EXEC_DEVICE){
       hypre_CSRMatrixSpMVAnalysisDevice(hypre_ParCSRMatrixDiag(parcsr_A));
-#endif
+      }
    }
    else if ( build_matrix_type == 5 )
    {
       BuildParLaplacian125pt(comm, argc, argv, build_matrix_arg_index, &parcsr_A);
 
-#if defined(HYPRE_USING_GPU)
+      if(hypre_GetExecPolicy1(memory_location) == HYPRE_EXEC_DEVICE){
       hypre_CSRMatrixSpMVAnalysisDevice(hypre_ParCSRMatrixDiag(parcsr_A));
-#endif
+    }
    }
    else if ( build_matrix_type == 6 )
    {
@@ -4936,7 +4961,7 @@ main( hypre_int argc,
       if (second_time)
       {
          HYPRE_ANNOTATE_REGION_BEGIN("%s", "Run-2");
-         // dHYPRE_SetExecutionPolicy(exec2_policy);
+         HYPRE_SetExecutionPolicy(exec2_policy);
 
          /* run a second time [for timings, to check for memory leaks] */
          HYPRE_ParVectorSetRandomValues(x, 775);
@@ -5784,7 +5809,13 @@ main( hypre_int argc,
          hypre_printf("HYPRE_ParCSRPCGGetPrecond got good precond\n");
       }
 
-      HYPRE_SetExecutionPolicy(setup_exec_policy);
+
+      if(setup_exec_policy){
+         HYPRE_SetExecutionPolicy(setup_exec_policy);
+         HYPRE_SetMemoryLocation(HYPRE_MEMORY_HOST);
+      }
+
+   
       hypre_GpuProfilingPushRange("PCG-Setup-1");
       HYPRE_PCGSetup(pcg_solver, (HYPRE_Matrix) parcsr_M,
                      (HYPRE_Vector) b, (HYPRE_Vector) x);
@@ -5794,16 +5825,81 @@ main( hypre_int argc,
       hypre_FinalizeTiming(time_index);
       hypre_ClearTiming();
 
+      
+      
+      // After HYPRE_PCGSetup(...), before solve
+
+printf("*** Migrating AMG vectors to GPU ***\n");
+
+// Get AMG data
+HYPRE_Int num_levels;
+HYPRE_BoomerAMGGetNumLevels(amg_precond, &num_levels);
+
+// Get vector arrays (ParVector**)
+HYPRE_ParVector** U_array;
+HYPRE_ParVector** F_array;
+HYPRE_BoomerAMGGetUArray(amg_precond, &U_array);
+HYPRE_BoomerAMGGetFArray(amg_precond, &F_array);
+
+// Migrate U_array and F_array
+for (HYPRE_Int level = 0; level < num_levels; level++)
+{
+   if (U_array && U_array[level])
+   {
+      hypre_ParVectorMigrate((hypre_ParVector*)U_array[level], HYPRE_MEMORY_DEVICE);
+      printf("Migrated U_array[%d]\n", level);
+   }
+   if (F_array && F_array[level])
+   {
+      hypre_ParVectorMigrate((hypre_ParVector*)F_array[level], HYPRE_MEMORY_DEVICE);
+      printf("Migrated F_array[%d]\n", level);
+   }
+}
+
+// Get work vectors (ParVector*)
+HYPRE_ParVector* Vtemp;
+HYPRE_ParVector* Rtemp;
+HYPRE_ParVector* Ptemp;
+HYPRE_ParVector* Ztemp;
+
+HYPRE_BoomerAMGGetVtemp(amg_precond, &Vtemp);
+HYPRE_BoomerAMGGetRtemp(amg_precond, &Rtemp);
+HYPRE_BoomerAMGGetPtemp(amg_precond, &Ptemp);
+HYPRE_BoomerAMGGetZtemp(amg_precond, &Ztemp);
+
+// Migrate work vectors
+if (Vtemp)
+{
+   hypre_ParVectorMigrate((hypre_ParVector*)Vtemp, HYPRE_MEMORY_DEVICE);
+}
+if (Rtemp)
+{
+   hypre_ParVectorMigrate((hypre_ParVector*)Rtemp, HYPRE_MEMORY_DEVICE);
+}
+if (Ptemp)
+{
+   hypre_ParVectorMigrate((hypre_ParVector*)Ptemp, HYPRE_MEMORY_DEVICE);
+}
+if (Ztemp)
+{
+   hypre_ParVectorMigrate((hypre_ParVector*)Ztemp, HYPRE_MEMORY_DEVICE);
+}
+
+
+HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE);
+HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE);
+
+// Now run solve
+HYPRE_PCGSolve(pcg_solver, (HYPRE_Matrix)parcsr_A,
+               (HYPRE_Vector)b, (HYPRE_Vector)x);
+      // // BECKDUN - Migrate AMG hierarchy to GPU
+                              
       time_index = hypre_InitializeTiming("PCG Solve");
       hypre_BeginTiming(time_index);
-
-	// move the memory from CPU to GPU
-     
-      // hypre_ParCSRMIgrate;
-      // hypre_ParVectorMigrate;
-      // hypre_Par migrate;
-
-      HYPRE_SetExecutionPolicy(solve_exec_policy);  /* Switch to solve policy */
+      // if(solve_exec_policy == HYPRE_EXEC_DEVICE) {
+         HYPRE_SetExecutionPolicy(solve_exec_policy);
+         HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE);
+      //}
       hypre_GpuProfilingPushRange("PCG-Solve-1");
       HYPRE_PCGSolve(pcg_solver, (HYPRE_Matrix)parcsr_A,
                      (HYPRE_Vector)b, (HYPRE_Vector)x);
@@ -5817,7 +5913,14 @@ main( hypre_int argc,
       if (second_time)
       {
          HYPRE_ANNOTATE_REGION_BEGIN("%s", "Run-2");
-         HYPRE_SetExecutionPolicy(setup_exec_policy);
+
+         if(setup_exec_policy == HYPRE_EXEC_HOST){
+            HYPRE_SetExecutionPolicy(setup_exec_policy);
+            HYPRE_SetMemoryLocation(HYPRE_MEMORY_HOST);
+         } else {
+            HYPRE_SetExecutionPolicy(exec2_policy);
+
+         }
 
          /* run a second time [for timings, to check for memory leaks] */
          HYPRE_ParVectorSetRandomValues(x, 775);
@@ -5847,9 +5950,15 @@ main( hypre_int argc,
 
          time_index = hypre_InitializeTiming("PCG Solve");
          hypre_BeginTiming(time_index);
-         HYPRE_SetExecutionPolicy(solve_exec_policy);  /* Switch to solve policy */
+
+
+         if(solve_exec_policy == HYPRE_EXEC_DEVICE) {
+         HYPRE_SetExecutionPolicy(solve_exec_policy);
+         HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE);
+         }
 
          hypre_GpuProfilingPushRange("PCG-Solve-2");
+
 
          HYPRE_PCGSolve(pcg_solver, (HYPRE_Matrix)parcsr_A,
                         (HYPRE_Vector)b, (HYPRE_Vector)x);
@@ -9708,11 +9817,14 @@ final:
    /* Free the memory buffer allocated for storing error messages when using mode 1 for printing errors
       Note: This call is redundant since the cleanup is already handled in HYPRE_Finalize. */
    HYPRE_ClearErrorMessages();
-
+   
    /* Finalize Hypre */
    HYPRE_Finalize();
 
    /* Finalize MPI */
+
+   // BECKDUN DEBUG COMMENT
+   
    hypre_MPI_Finalize();
 
 #if defined(HYPRE_USING_MEMORY_TRACKER)
@@ -9727,9 +9839,9 @@ final:
 #endif
 
    /* when using cuda-memcheck --leak-check full, uncomment this */
-#if defined(HYPRE_USING_GPU)
+if(hypre_GetExecPolicy1(memory_location) == HYPRE_EXEC_DEVICE) {
    hypre_ResetDevice();
-#endif
+}
 
    return (0);
 }

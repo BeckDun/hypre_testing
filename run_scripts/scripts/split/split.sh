@@ -1,12 +1,13 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=64
 #SBATCH --partition=ghx4
 #SBATCH --time=00:05:00
-#SBATCH --job-name=pcg_cpu_gpu
+#SBATCH --job-name=hypre_hybrid_128
 #SBATCH --account=bdys-dtai-gh
 #SBATCH --gpus-per-node=4
+#SBATCH --output=$HOME/hypre_testing/run_scripts/scripts/hybrid/slurm_%j.log
 
 # Load required modules
 module load craype-accel-nvidia90
@@ -17,17 +18,17 @@ export MPICH_GPU_SUPPORT_ENABLED=1
 echo "Loaded modules:"
 module list
 
+# Set OpenMP threads for CPU setup phase
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+echo "OMP_NUM_THREADS=$OMP_NUM_THREADS"
+
 # Navigate to the test directory
 cd $HOME/hypre_testing/src/build/test
 
-# Run the modified ij test with PCG (solver 1)
-# -pcg_setup_host_solve_device: CPU for setup, GPU for solve
-# -solver 1: PCG solver with BoomerAMG preconditioner
-# -125pt: 125-point stencil 
-# -n 256 256 256: 256^3 grid
-# -P 2 2 1: 2x2x1 processor grid
-# -memory_device: use device memory
-# -exec_device: default GPU execution (will be overridden by our new flag)
+# Create output directory
+mkdir -p $HOME/hypre_testing/run_scripts/scripts/hybrid
+
+
 srun --cpu-bind=cores --gpu-bind=closest \
      -n 4 -G 4 \
      ./ij \
@@ -35,6 +36,8 @@ srun --cpu-bind=cores --gpu-bind=closest \
     -poutdat 3 \
     -solver 1 \
     -125pt \
-    -n 256 256 256 \
+    -n 128 128 128 \
     -P 2 2 1 \
-    -setup_host_solve_device
+    -hybrid \
+    > $HOME/hypre_testing/run_scripts/scripts/hybrid/hybrid_128.out 2>&1
+
