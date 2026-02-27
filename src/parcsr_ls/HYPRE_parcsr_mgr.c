@@ -89,31 +89,6 @@ HYPRE_MGRSolve( HYPRE_Solver solver,
                             (hypre_ParVector *) x ) );
 }
 
-
-HYPRE_Int
-HYPRE_MGRGetAArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix ***A_array)
-{
-   return hypre_MGRGetAArray((void*)solver, (hypre_ParCSRMatrix***)A_array);
-}
-
-HYPRE_Int
-HYPRE_MGRGetPArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix ***P_array)
-{
-   return hypre_MGRGetPArray((void*)solver, (hypre_ParCSRMatrix***)P_array);
-}
-
-HYPRE_Int
-HYPRE_MGRGetRTArray(HYPRE_Solver solver, HYPRE_ParCSRMatrix ***RT_array)
-{
-   return hypre_MGRGetRTArray((void*)solver, (hypre_ParCSRMatrix***)RT_array);
-}
-
-HYPRE_Int
-HYPRE_MGRGetNumCoarseLevels(HYPRE_Solver solver, HYPRE_Int *num_coarse_levels)
-{
-   return hypre_MGRGetNumCoarseLevels((void*)solver, num_coarse_levels);
-}
-
 #ifdef HYPRE_USING_DSUPERLU
 /*--------------------------------------------------------------------------
  * HYPRE_MGRDirectSolverCreate
