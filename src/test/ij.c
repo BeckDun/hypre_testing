@@ -5824,6 +5824,9 @@ main( hypre_int argc,
       hypre_GpuProfilingPushRange("PCG-Solve-1");
       HYPRE_PCGSolve(pcg_solver, (HYPRE_Matrix)parcsr_A,
                      (HYPRE_Vector)b, (HYPRE_Vector)x);
+
+      time_index = hypre_InitializeTiming("PCG Solve");
+hypre_BeginTiming(time_index);
       hypre_GpuProfilingPopRange();
       hypre_EndTiming(time_index);
       hypre_PrintTiming("Solve phase times", comm);
