@@ -9738,9 +9738,7 @@ final:
       }
    }
 
-   /* Free the memory buffer allocated for storing error messages when using mode 1 for printing errors
-      Note: This call is redundant since the cleanup is already handled in HYPRE_Finalize. */
-   HYPRE_ClearErrorMessages();
+ 
    
    /* Finalize Hypre */
    HYPRE_Finalize();
@@ -9763,12 +9761,14 @@ final:
 #endif
 
    /* when using cuda-memcheck --leak-check full, uncomment this */
+#if defined(HYPRE_USING_GPU)
 if(hypre_GetExecPolicy1(memory_location) == HYPRE_EXEC_DEVICE) {
    hypre_ResetDevice();
 }
 
    return (0);
 }
+#endif
 
 /*----------------------------------------------------------------------
  * Build matrix from file. Expects three files on each processor.
