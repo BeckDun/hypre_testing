@@ -1351,7 +1351,7 @@ hypre_BoomerAMGGetAArray(void* data, hypre_ParCSRMatrix*** A_array)
    return hypre_error_flag;
 }
 
-
+HYPRE_Int
 hypre_BoomerAMGGetNumLevels(void* data, HYPRE_Int* num_levels)
 {
    hypre_ParAMGData* amg_data = (hypre_ParAMGData*) data;
