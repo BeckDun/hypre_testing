@@ -286,14 +286,6 @@ hypre_BoomerAMGCycle( void              *amg_vdata,
    while (Not_Finished)
    {
 
-      // hypre_ParCSRMatrixMigrate(A_array[level], HYPRE_MEMORY_DEVICE);
-      // hypre_ParCSRMatrixMigrate(P_array[level], HYPRE_MEMORY_DEVICE);
-
-      // hypre_ParVectorMigrate(F_array[level], HYPRE_MEMORY_DEVICE);
-      // hypre_ParVectorMigrate(U_array[level], HYPRE_MEMORY_DEVICE);
-
-
-
       if (num_levels > 1)
       {
          local_size = hypre_VectorSize(hypre_ParVectorLocalVector(F_array[level]));

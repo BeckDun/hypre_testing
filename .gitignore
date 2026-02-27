@@ -25,6 +25,7 @@ AUTOTEST/*.dir
 out/
 .vscode
 .vs
+.DS_Store
 
 ###############
 # Documentation
