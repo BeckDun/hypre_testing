@@ -682,6 +682,7 @@ main( hypre_int argc,
       else if ( strcmp(argv[arg_index], "-exec2_host") == 0 )
       {
          exec2_policy = HYPRE_EXEC_HOST;
+         hypre_printf("GPU exec2_host ***\n");
       }
       else if ( strcmp(argv[arg_index], "-exec2_device") == 0 )
       {
@@ -709,6 +710,7 @@ main( hypre_int argc,
 
    if (hypre_GetExecPolicy1(memory_location) == HYPRE_EXEC_DEVICE)
    {
+      hypre_printf("*** DEBUG: Using GPU***\n");	 
       keepTranspose = 1;
       coarsen_type  = 8;
       mod_rap2      = 1;
